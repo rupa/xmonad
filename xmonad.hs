@@ -75,7 +75,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask .|. shiftMask, xK_p     ), safePromptSelection "firefox")
 
     -- print screen
-    , ((0,                xK_Print      ), unsafeSpawn "scrot -e 'mv $f ~/Pictures'")
+    , ((0,                     xK_Print ), unsafeSpawn "scrot -e 'mv $f ~/Pictures'")
     -- cap screen
     , ((modMask,               xK_Print ), unsafeSpawn "/home/rupa/ubin/cap")
 
