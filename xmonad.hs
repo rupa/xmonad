@@ -53,7 +53,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask,               xK_Up    ), spawn "nautilus ~")
 
     -- shorturl
-    , ((modMask,               xK_c     ), spawn "/home/rupa/ubin/short")
+    , ((modMask,               xK_c     ), spawn "/home/rupa/bin/short")
 
     -- shell/window prompts
     , ((modMask,               xK_space ), runOrRaisePrompt mySP)
