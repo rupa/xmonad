@@ -164,7 +164,7 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
     -- mod-button1, Set the window to floating mode and move by dragging
     [ ((modMask, button1), (\w -> focus w >> mouseMoveWindow w))
     -- mod-button2, Raise the window to the top of the stack
-    --, ((modMask, button2), (\w -> focus w >> windows W.swapMaster))
+    , ((modMask, button2), (\w -> focus w >> windows W.swapMaster))
     -- mod-button3, Set the window to floating mode and resize by dragging
     , ((modMask, button3), (\w -> focus w >> Flex.mouseResizeWindow w)) ]
 
@@ -203,7 +203,7 @@ mySP = defaultXPConfig
     , promptBorderWidth = 1
     , position          = Bottom
     , height            = 20
-    --, autoComplete      = ?
+    --, autoComplete      = Just 1000
     , historySize       = 1000 }
 
 -- dynamicLog theme (suppress everything but layout)
@@ -222,6 +222,15 @@ myPP = defaultPP
     , ppTitle           = const ""
     , ppWsSep           = ""
     , ppSep             = "" }
+
+-- mailPrompt
+emailPrompt :: XPConfig -> [String] -> X( )
+emailPrompt c addrs =
+    inputPromptWithCompl c "@" (mkComplFunFromList addrs) ?+ \to ->
+    inputPrompt c "s" ?+ \subj ->
+    inputPrompt c ">" ?+ \body ->
+    io $ runProcessWithInput "mutt" ["-F", "~/.gmailrc", "-s", subj, to] (body ++ "\n")
+         >> return ()
 
 -- layouts
 myLayout = ewmhDesktopsLayout $ avoidStruts $ toggleLayouts (noBorders Full)
@@ -245,9 +254,6 @@ myManageHook = composeAll
     , className =? "XVkbd"          --> doIgnore
     , className =? "Cellwriter"     --> doIgnore
     , resource  =? "desktop_window" --> doIgnore
-    , className =? "wmforkplop"     --> doFloat
-    , className =? "wmhdplop"       --> doFloat
-    , className =? "Conky"          --> doIgnore
     , isFullscreen                  --> doFullFloat
     --                                      x y w h
     , scratchpadManageHook $ W.RationalRect 0 0 1 0.3
@@ -255,15 +261,6 @@ myManageHook = composeAll
 
 -- let Gnome know about Xmonad actions
 myLogHook = ewmhDesktopsLogHookCustom scratchpadFilterOutWorkspace >> updatePointer Nearest
-
--- mailPrompt
-emailPrompt :: XPConfig -> [String] -> X( )
-emailPrompt c addrs =
-    inputPromptWithCompl c "@" (mkComplFunFromList addrs) ?+ \to ->
-    inputPrompt c "s" ?+ \subj ->
-    inputPrompt c ">" ?+ \body ->
-    io $ runProcessWithInput "mutt" ["-F", "~/.gmailrc", "-s", subj, to] (body ++ "\n")
-         >> return ()
 
 main = xmonad $ defaultConfig
     { terminal           = "urxvt"
@@ -276,4 +273,5 @@ main = xmonad $ defaultConfig
     , mouseBindings      = myMouseBindings
     , layoutHook         = myLayout
     , logHook            = myLogHook
-    , manageHook         = myManageHook }
+    , manageHook         = myManageHook <+> manageHook defaultConfig
+    }
