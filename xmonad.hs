@@ -43,20 +43,22 @@ import XMonad.Util.XSelection
 myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
     -- terminals
-    [ ((modMask,               xK_Return), spawn $ XMonad.terminal conf)
-    , ((modMask .|. shiftMask, xK_Return), spawn "urxvt -pe tabbed")
+    [ ((modMask,                 xK_Return), spawn $ XMonad.terminal conf)
+    , ((modMask .|. shiftMask,   xK_Return), spawn "urxvt -pe tabbed")
 
     -- quake terminal
-    , ((modMask,               xK_Down  ), scratchpadSpawnAction conf)
+    , ((modMask,                 xK_Down  ), scratchpadSpawnAction conf)
 
     -- file manager
-    , ((modMask,               xK_Up    ), spawn "nautilus ~")
+    , ((modMask,                 xK_Up     ), runOrRaise 
+        "nautilus ~" (className =? "Nautilus"))
+    , ((modMask .|. shiftMask,   xK_Up    ), spawn "nautilus ~")
 
     -- shorturl
-    , ((modMask,               xK_c     ), spawn "/home/rupa/bin/short")
+    , ((modMask,                 xK_c     ), spawn "/home/rupa/bin/short")
 
     -- shell/window prompts
-    , ((modMask,               xK_space ), runOrRaisePrompt mySP)
+    , ((modMask,                 xK_space ), runOrRaisePrompt mySP)
     , ((modMask .|. shiftMask,   xK_space ), shellPrompt mySP)
     , ((modMask .|. controlMask, xK_space), windowPromptGoto mySP)
 
@@ -96,21 +98,23 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     -- Move focus to the next/previous window
     , ((modMask,               xK_j     ), windows W.focusDown)
     , ((modMask,               xK_Tab   ), windows W.focusDown)
+    , ((mod1Mask,              xK_Tab   ), windows W.focusDown)
     , ((modMask,               xK_k     ), windows W.focusUp)
     , ((modMask .|. shiftMask, xK_Tab   ), windows W.focusUp)
+    , ((mod1Mask .|. shiftMask, xK_Tab   ), windows W.focusUp)
 
     -- Swap the focused window with next/prev window
     , ((modMask .|. shiftMask, xK_j     ), windows W.swapDown)
     , ((modMask .|. shiftMask, xK_k     ), windows W.swapUp)
-
-    -- Swap the focused window and the master window
-    , ((modMask,            xK_semicolon), windows W.swapMaster)
 
     -- Shrink/Expand the master area
     , ((modMask,               xK_h     ), sendMessage Shrink)
     , ((modMask,               xK_l     ), sendMessage Expand)
     , ((modMask .|. shiftMask, xK_h     ), sendMessage MirrorShrink)
     , ((modMask .|. shiftMask, xK_l     ), sendMessage MirrorExpand)
+
+    -- Swap the focused window and the master window
+    , ((modMask,            xK_semicolon), windows W.swapMaster)
 
     -- Increment/Deincrement the number of windows in the master area
     , ((modMask,               xK_comma ), sendMessage (IncMasterN 1))
@@ -233,8 +237,7 @@ emailPrompt c addrs =
          >> return ()
 
 -- layouts
-myLayout = ewmhDesktopsLayout $ avoidStruts $ toggleLayouts (noBorders Full)
-    --(smartBorders (tiled ||| Mirror tiled ||| tabbed shrinkText myTab))
+myLayout = avoidStruts $ toggleLayouts (noBorders Full)
     (smartBorders (tiled ||| Mirror tiled ||| layoutHints (tabbed shrinkText myTab)))
     where
         tiled   = layoutHints $ ResizableTall nmaster delta ratio []
@@ -256,7 +259,7 @@ myManageHook = composeAll
     , resource  =? "desktop_window" --> doIgnore
     , isFullscreen                  --> doFullFloat
     --                                      x y w h
-    , scratchpadManageHook $ W.RationalRect 0 0 1 0.3
+    , scratchpadManageHook $ W.RationalRect 0 0 1 0.42
     , manageDocks ]
 
 -- let Gnome know about Xmonad actions
@@ -272,6 +275,7 @@ main = xmonad $ defaultConfig
     , keys               = myKeys
     , mouseBindings      = myMouseBindings
     , layoutHook         = myLayout
+    , handleEventHook    = ewmhDesktopsEventHook
     , logHook            = myLogHook
     , manageHook         = myManageHook <+> manageHook defaultConfig
     }
