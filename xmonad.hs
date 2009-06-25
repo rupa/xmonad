@@ -50,7 +50,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask,                 xK_Down  ), scratchpadSpawnAction conf)
 
     -- file manager
-    , ((modMask,                 xK_Up     ), runOrRaise 
+    , ((modMask,                 xK_Up     ), runOrRaise
         "nautilus ~" (className =? "Nautilus"))
     , ((modMask .|. shiftMask,   xK_Up    ), spawn "nautilus ~")
 
@@ -63,7 +63,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask .|. controlMask, xK_space), windowPromptGoto mySP)
 
     -- browser
-    , ((modMask,               xK_b     ), runOrRaise 
+    , ((modMask,               xK_b     ), runOrRaise
         "firefox" (className =? "Firefox"))
 
     -- send a mail
@@ -93,7 +93,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
     -- Rotate through layouts
     , ((modMask,               xK_grave ), sendMessage NextLayout
-    >> (dynamicLogString myPP >>= \d->safeSpawn "gnome-osd-client" d))
+    >> (dynamicLogString myPP >>= \d->safeSpawn "gnome-osd-client" [d]))
 
     -- Move focus to the next/previous window
     , ((modMask,               xK_j     ), windows W.focusDown)
@@ -101,7 +101,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((mod1Mask,              xK_Tab   ), windows W.focusDown)
     , ((modMask,               xK_k     ), windows W.focusUp)
     , ((modMask .|. shiftMask, xK_Tab   ), windows W.focusUp)
-    , ((mod1Mask .|. shiftMask, xK_Tab   ), windows W.focusUp)
+    , ((mod1Mask .|. shiftMask, xK_Tab  ), windows W.focusUp)
 
     -- Swap the focused window with next/prev window
     , ((modMask .|. shiftMask, xK_j     ), windows W.swapDown)
@@ -125,7 +125,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
     -- toggle focused window fullscreen
     , ((modMask,               xK_m     ), sendMessage (Toggle "Full")
-    >> (dynamicLogString myPP >>= \d->safeSpawn "gnome-osd-client" d))
+    >> (dynamicLogString myPP >>= \d->safeSpawn "gnome-osd-client" [d]))
 
     -- Push window back into tiling
     , ((modMask,               xK_s     ), withFocused $ windows . W.sink)
@@ -134,7 +134,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     -- toggle the status bar gap
     , ((modMask,               xK_f     ), sendMessage ToggleStruts)
 
-    -- close focused window 
+    -- close focused window
     , ((modMask              , xK_w     ), kill)
 
     -- Restart xmonad
@@ -242,7 +242,7 @@ myLayout = avoidStruts $ toggleLayouts (noBorders Full)
     where
         tiled   = layoutHints $ ResizableTall nmaster delta ratio []
         nmaster = 1
-        delta   = 3/100
+        delta   = 2/100
         ratio   = 1/2
 
 -- special windows
