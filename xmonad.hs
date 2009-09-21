@@ -28,6 +28,7 @@ import XMonad.Layout.ResizableTile
 import XMonad.Layout.Tabbed
 import XMonad.Layout.ToggleLayouts
 import XMonad.Layout.WindowArranger
+import XMonad.Layout.Mosaic
 
 import XMonad.Prompt
 import XMonad.Prompt.Input
@@ -40,19 +41,23 @@ import XMonad.Util.Scratchpad
 import XMonad.Util.WorkspaceCompare
 import XMonad.Util.XSelection
 
+-- for dbus (gnome-session hang)
+import XMonad.Config.Gnome
+
 myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
     -- terminals
     [ ((modMask,                 xK_Return), spawn $ XMonad.terminal conf)
+    , ((modMask .|. controlMask, xK_Return), spawn "/home/rupa/bin/randterm")
     , ((modMask .|. shiftMask,   xK_Return), spawn "urxvt -pe tabbed")
 
     -- quake terminal
     , ((modMask,                 xK_Down  ), scratchpadSpawnAction conf)
 
     -- file manager
-    , ((modMask,                 xK_Up     ), runOrRaise
-        "nautilus ~" (className =? "Nautilus"))
-    , ((modMask .|. shiftMask,   xK_Up    ), spawn "nautilus ~")
+    --, ((modMask,                 xK_Up    ), runOrRaise "nautilus ~" (className =? "Nautilus"))
+    --, ((modMask .|. shiftMask,   xK_Up    ), spawn "nautilus ~")
+    , ((modMask,                 xK_Up    ), spawn "nautilus ~")
 
     -- shorturl
     , ((modMask,                 xK_c     ), spawn "/home/rupa/bin/short")
@@ -122,6 +127,15 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
     -- Resize viewed windows to the correct size
     , ((modMask,               xK_n     ), refresh)
+    -- Reset layout of current workspace
+    , ((modMask .|. shiftMask, xK_n     ), setLayout $ XMonad.layoutHook conf)
+
+
+    -- Mosaic
+    , ((modMask , xK_a                  ), sendMessage Taller)
+    , ((modMask , xK_z                  ), sendMessage Wider)
+    , ((modMask .|. controlMask, xK_N   ), sendMessage Reset)
+
 
     -- toggle focused window fullscreen
     , ((modMask,               xK_m     ), sendMessage (Toggle "Full")
@@ -238,7 +252,7 @@ emailPrompt c addrs =
 
 -- layouts
 myLayout = avoidStruts $ toggleLayouts (noBorders Full)
-    (smartBorders (tiled ||| Mirror tiled ||| layoutHints (tabbed shrinkText myTab)))
+    (smartBorders (tiled ||| mosaic 2 [3,2] ||| Mirror tiled ||| layoutHints (tabbed shrinkText myTab)))
     where
         tiled   = layoutHints $ ResizableTall nmaster delta ratio []
         nmaster = 1
@@ -256,26 +270,28 @@ myManageHook = composeAll
     , className =? "Gnome-panel"    --> doIgnore
     , className =? "XVkbd"          --> doIgnore
     , className =? "Cellwriter"     --> doIgnore
+    , className =? "Gtkdialog"      --> doFloat
     , resource  =? "desktop_window" --> doIgnore
     , isFullscreen                  --> doFullFloat
     --                                      x y w h
     , scratchpadManageHook $ W.RationalRect 0 0 1 0.42
-    , manageDocks ]
+    , manageDocks ] <+> manageHook defaultConfig
 
 -- let Gnome know about Xmonad actions
 myLogHook = ewmhDesktopsLogHookCustom scratchpadFilterOutWorkspace >> updatePointer Nearest
 
 main = xmonad $ defaultConfig
-    { terminal           = "urxvt"
-    , borderWidth        = 2
-    , normalBorderColor  = "black"
-    , focusedBorderColor = "orange"
-    , focusFollowsMouse  = True
-    , modMask            = mod4Mask
-    , keys               = myKeys
-    , mouseBindings      = myMouseBindings
-    , layoutHook         = myLayout
-    , handleEventHook    = ewmhDesktopsEventHook
-    , logHook            = myLogHook
-    , manageHook         = myManageHook <+> manageHook defaultConfig
-    }
+       { terminal           = "urxvt"
+       , borderWidth        = 2
+       , normalBorderColor  = "black"
+       , focusedBorderColor = "orange"
+       , focusFollowsMouse  = True
+       , modMask            = mod4Mask
+       , keys               = myKeys
+       , mouseBindings      = myMouseBindings
+       , layoutHook         = myLayout
+       , handleEventHook    = ewmhDesktopsEventHook
+       , logHook            = myLogHook
+       , manageHook         = myManageHook
+       , startupHook        = gnomeRegister
+       }
