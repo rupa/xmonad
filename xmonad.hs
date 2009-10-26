@@ -230,8 +230,9 @@ myPP = defaultPP
       "Hinted ResizableTall"        -> "[|]"
       "Mirror Hinted ResizableTall" -> "[-]"
       "Hinted Tabbed Simplest"      -> "[T]"
-      "Full"                 -> "[ ]"
-      _                      -> x )
+      "Mosaic"                      -> "[M]"
+      "Full"                        -> "[ ]"
+      _                             -> x )
     , ppCurrent         = const ""
     , ppVisible         = const ""
     , ppHidden          = const ""
