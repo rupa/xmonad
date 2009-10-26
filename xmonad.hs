@@ -87,12 +87,12 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask,               xK_Print ), unsafeSpawn "/home/rupa/ubin/cap")
 
     -- cycle through workspaces
-    , ((modMask,               xK_Right ), moveTo Next (WSIs (return $ not . (=="SP") . W.tag)))
-    , ((modMask,               xK_Left  ), moveTo Prev (WSIs (return $ not . (=="SP") . W.tag)))
+    , ((modMask,               xK_Right ), moveTo Next (WSIs (return $ not . (=="NSP") . W.tag)))
+    , ((modMask,               xK_Left  ), moveTo Prev (WSIs (return $ not . (=="NSP") . W.tag)))
 
     -- move windows through workspaces
-    , ((modMask .|. shiftMask, xK_Right ), shiftTo Next (WSIs (return $ not . (=="SP") . W.tag)))
-    , ((modMask .|. shiftMask, xK_Left  ), shiftTo Prev (WSIs (return $ not . (=="SP") . W.tag)))
+    , ((modMask .|. shiftMask, xK_Right ), shiftTo Next (WSIs (return $ not . (=="NSP") . W.tag)))
+    , ((modMask .|. shiftMask, xK_Left  ), shiftTo Prev (WSIs (return $ not . (=="NSP") . W.tag)))
     , ((modMask .|. controlMask, xK_Right), shiftTo Next EmptyWS)
     , ((modMask .|. controlMask, xK_Left), shiftTo Prev EmptyWS)
 
@@ -119,7 +119,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask .|. shiftMask, xK_l     ), sendMessage MirrorExpand)
 
     -- Swap the focused window and the master window
-    , ((modMask,            xK_semicolon), windows W.swapMaster)
+    , ((modMask,            xK_semicolon), windows W.shiftMaster)
 
     -- Increment/Deincrement the number of windows in the master area
     , ((modMask,               xK_comma ), sendMessage (IncMasterN 1))
@@ -182,7 +182,7 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
     -- mod-button1, Set the window to floating mode and move by dragging
     [ ((modMask, button1), (\w -> focus w >> mouseMoveWindow w))
     -- mod-button2, Raise the window to the top of the stack
-    , ((modMask, button2), (\w -> focus w >> windows W.swapMaster))
+    , ((modMask, button2), (\w -> focus w >> windows W.shiftMaster))
     -- mod-button3, Set the window to floating mode and resize by dragging
     , ((modMask, button3), (\w -> focus w >> Flex.mouseResizeWindow w)) ]
 
@@ -280,18 +280,20 @@ myManageHook = composeAll
 -- let Gnome know about Xmonad actions
 myLogHook = ewmhDesktopsLogHookCustom scratchpadFilterOutWorkspace >> updatePointer Nearest
 
-main = xmonad $ defaultConfig
-       { terminal           = "urxvt"
-       , borderWidth        = 2
-       , normalBorderColor  = "black"
-       , focusedBorderColor = "orange"
-       , focusFollowsMouse  = True
-       , modMask            = mod4Mask
-       , keys               = myKeys
-       , mouseBindings      = myMouseBindings
-       , layoutHook         = myLayout
-       , handleEventHook    = ewmhDesktopsEventHook
-       , logHook            = myLogHook
-       , manageHook         = myManageHook
-       , startupHook        = gnomeRegister
-       }
+myConfig = ewmh defaultConfig
+    { terminal           = "urxvt"
+    , borderWidth        = 2
+    , normalBorderColor  = "black"
+    , focusedBorderColor = "orange"
+    , focusFollowsMouse  = True
+    , modMask            = mod4Mask
+    , keys               = myKeys
+    , mouseBindings      = myMouseBindings
+    , layoutHook         = myLayout
+    , manageHook         = myManageHook
+    , startupHook        = gnomeRegister
+    }
+
+-- need to override ewmh's logHook cause I'm using Scratchpad
+main = xmonad $ myConfig
+    { logHook            = myLogHook }
