@@ -12,6 +12,7 @@ import Data.Monoid
 
 import XMonad.Actions.CycleWS
 import XMonad.Actions.FlexibleResize as Flex
+--import XMonad.Actions.GridSelect
 import XMonad.Actions.Search
 import XMonad.Actions.UpdatePointer
 import XMonad.Actions.WindowGo
@@ -53,6 +54,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
     -- quake terminal
     , ((modMask,                 xK_Down  ), scratchpadSpawnAction conf)
+    --, ((modMask,                 xK_Down  ), scratchpadSpawnActionCustom "gnome-terminal --disable-factory --name scratchpad")
 
     -- file manager
     --, ((modMask,                 xK_Up    ), runOrRaise "nautilus ~" (className =? "Nautilus"))
@@ -68,23 +70,27 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask .|. controlMask, xK_space), windowPromptGoto mySP)
 
     -- browser
-    , ((modMask,               xK_b     ), runOrRaise
+    , ((modMask,                 xK_b     ), runOrRaise
         "firefox" (className =? "Firefox"))
 
     -- send a mail
-    , ((modMask,               xK_x     ), emailPrompt mySP ["rupa@lrrr.us"])
+    , ((modMask,                 xK_x     ), emailPrompt mySP ["rupa@lrrr.us"])
+
+    -- grid select
+    --, ((modMask, xK_g), goToSelected defaultGSConfig)
 
     -- search prompt
-    , ((modMask,               xK_p     ), SM.submap $ searchEngineMap $ promptSearch mySP)
+    , ((modMask,                 xK_p     ), SM.submap $ searchEngineMap $ promptSearch mySP)
     -- search selection
     , ((modMask .|. controlMask, xK_p   ), SM.submap $ searchEngineMap $ selectSearch)
     -- open selection as URL
-    , ((modMask .|. shiftMask, xK_p     ), safePromptSelection "firefox")
+    , ((modMask .|. shiftMask,   xK_p     ), safePromptSelection "firefox")
 
     -- print screen
     , ((0,                     xK_Print ), unsafeSpawn "scrot -e 'mv $f ~/Pictures'")
     -- cap screen
-    , ((modMask,               xK_Print ), unsafeSpawn "/home/rupa/ubin/cap")
+    , ((modMask,                  xK_Print ), unsafeSpawn "/home/rupa/ubin/cap")
+    , ((modMask .|. controlMask,  xK_Print ), unsafeSpawn "/home/rupa/ubin/dropcap")
 
     -- cycle through workspaces
     , ((modMask,               xK_Right ), moveTo Next (WSIs (return $ not . (=="NSP") . W.tag)))
